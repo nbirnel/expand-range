@@ -1,0 +1,55 @@
+.TH expand-range 1 expand-range\-0.0.1
+.SH NAME
+expand-range \- make machine readable lists from human ranges
+.SH SYNOPSIS
+.B expand-range [OPTIONS] FILE
+.SH DESCRIPTION
+.B expand-range
+takes one or more files on the command line, 
+or standard in,
+and attempts to interpret each line as a {PREFIX}{NUMBER} range
+to be printed on standard out.
+Optionally,
+it will print the range as individual {PREFIX}{NUMBER}s on each line.
+.SH OPTIONS
+.TP
+.B -e
+print individual {PREFIX}{NUMBER} on each line,
+rather than as ranges.
+.TP
+.B -d DELIMITER
+use DELIMITER instead of the default `-' to parse ranges,
+and to separate output ranges.
+.TP
+.B -3
+print extra third field with matching range
+.TP
+.B -a
+print extra third field on every individual item "always"
+.TP
+.B -- 
+interpret all following flags as arguments.
+.SH EXAMPLES
+.B echo 'foo109-11' | expand-range -e
+.LP 
+yields 
+
+ foo109
+ foo110
+ foo111
+.PP
+.B echo 'foo109,11' | expand-range -d,
+.LP 
+yields 
+
+ foo109,foo111
+
+.SH SEE ALSO
+.B ruby(1)
+.SH BUGS
+Probably.
+.SH LICENSE
+\(co 2013 Noah Birnel
+.sp
+You may use this software however you like.
+

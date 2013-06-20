@@ -1,0 +1,93 @@
+#!/bin/ruby
+
+def expand(l, r, three)
+    three = three ? three : ""
+    if l > r 
+        #FIXME why am I calling this twice?
+        pref, l, r = range2prefbegend(l, r)
+        if l.to_i > r.to_i
+            warn "LHS #{l} greater than RHS #{r} at line #{$.}"
+        end
+        #FIXME obviously needs refactoring
+        (l..r).each_with_index do |a, i|
+            if i== 0 && $keep_3
+                puts pref + a + $delim + three
+            elsif $always_keep_3
+                puts pref + a + $delim + three
+            else
+                puts pref + a
+            end
+        end
+    else
+        (l..r).each_with_index do |a, i|
+            if i== 0 && $keep_3
+                puts a + $delim + three
+            elsif $always_keep_3
+                puts a + $delim + three
+            else
+                puts a
+            end
+        end
+    end
+end
+
+def range2prefbegend(l, r)
+    lpref = l.sub(/[0-9]*$/, '')
+    rpref = r.sub(/[0-9]*$/, '')
+    
+    lnum = l[lpref.length, l.length-lpref.length]
+    rnum = r[rpref.length, r.length-rpref.length]
+
+    if rpref == lpref || rpref == ''
+    else
+        warn "LHS prefix #{lpref} != RHS prefix #{rpref} at line #{$.}"
+    end
+    return lpref, lnum, rnum
+end
+
+def usage(s)
+    $stderr.puts(s)
+    $stderr.puts("Usage: #{File.basename($0)}: [-e] file ...")
+    exit(2)
+end
+
+$delim = "-"
+$warn_3 = true
+
+loop { case ARGV[0]
+    when '-e' then ARGV.shift; $expand = true
+    when '-3' then ARGV.shift; $keep_3 = true; $warn_3 = false
+    when '-a' then ARGV.shift; $always_keep_3 = $keep_3 = true; $warn_3 = false
+    when '-d' then ARGV.shift; $delim = ARGV.shift
+    when /--/ then ARGV.shift; break
+    when /^-/ then usage("Unknown option: #{ARGV[0].inspect}")
+    else break
+end; }
+
+while gets() do
+    line = $_.chomp
+    next if line.length == 0
+    l, r, three = line.split($delim)
+    if three and $warn_3
+        warn "third field #{three} on line #{$.}"
+    end
+
+    llen = l ? l.length : 0
+    rlen = r ? r.length : 0
+    if llen > rlen
+        common = l[0, llen-rlen]
+        newr = r ? common + r : l
+    else
+        newr = r
+    end
+
+    pref, l, r = range2prefbegend(l, newr)
+    l = pref + l
+    newr = pref + r
+    if $expand
+        expand(l, newr, three)
+    else
+        three = ($keep_3 ? (three ? $delim + three : $delim) : "")
+        puts l + $delim + newr + (three ? three : "")
+    end
+end   
