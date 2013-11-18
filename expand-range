@@ -1,4 +1,4 @@
-#!/bin/ruby
+#!/usr/bin/env ruby
 
 def expand(l, r, three)
     three = three ? three : ""
